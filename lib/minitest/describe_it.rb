@@ -13,13 +13,17 @@ module MiniTest
 end
 
 module MiniTest::Expectations
+  def self.__rename_method(old_name, new_name)
+    alias :"#{new_name}" :"#{old_name}"
+    remove_method old_name
+  end
+
   def self.obfuscate_expectation_methods
     MiniTest::Expectations.instance_methods.each do |method|
       next if method =~ /^_(must|wont)_/
       original   = method.to_sym
       obfuscated = ('_%s' % method.to_s).to_sym
-      alias :"#{obfuscated}" :"#{original}"
-      remove_method original
+      __rename_method original, obfuscated
     end
   end
 
@@ -28,8 +32,7 @@ module MiniTest::Expectations
       next unless method =~ /^_(must|wont)_/
       original   = method.to_s.gsub(/^_/, '').to_sym
       obfuscated = method.to_sym
-      alias :"#{original}" :"#{obfuscated}"
-      remove_method obfuscated
+      __rename_method obfuscated, original
     end
   end
 end
