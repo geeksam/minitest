@@ -20,17 +20,17 @@ module MiniTest::Expectations
 
   def self.obfuscate_expectation_methods
     MiniTest::Expectations.instance_methods.each do |method|
-      next if method =~ /^_(must|wont)_/
+      next if method =~ /^__OBFUSCATED_(must|wont)_.*__$/
       original   = method.to_sym
-      obfuscated = ('_%s' % method.to_s).to_sym
+      obfuscated = ('__OBFUSCATED_%s__' % method.to_s).to_sym
       __rename_method original, obfuscated
     end
   end
 
   def self.elucidate_expectation_methods
     MiniTest::Expectations.instance_methods.each do |method|
-      next unless method =~ /^_(must|wont)_/
-      original   = method.to_s.gsub(/^_/, '').to_sym
+      next unless method =~ /^__OBFUSCATED_(must|wont)_.*__$/
+      original   = method.to_s.gsub(/(^__OBFUSCATED_|__$)/, '').to_sym
       obfuscated = method.to_sym
       __rename_method obfuscated, original
     end
